@@ -28,6 +28,7 @@ module.exports = {
 					"index",
 					"sibling",
 					"parent",
+					"/^@/feedbacks/",
 					"/^@/shared/",
 					"/^#/"
 				],
