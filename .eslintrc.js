@@ -28,9 +28,7 @@ module.exports = {
 					"index",
 					"sibling",
 					"parent",
-					"/^@/@core/",
-					"/^@/infra/",
-					"/^@/modules/",
+					"/^@/shared/",
 					"/^#/"
 				],
 				"alphabetize": {
