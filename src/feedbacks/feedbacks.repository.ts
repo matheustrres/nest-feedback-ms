@@ -9,7 +9,6 @@ import {
 	type UpdateQuery,
 	type mongo,
 	type MongooseUpdateQueryOptions,
-	type Document,
 } from 'mongoose';
 
 import { Feedback, type FeedbackDoc } from './feedback.entity';
@@ -24,7 +23,7 @@ export class FeedbacksRepository {
 	async createOne(
 		feedback: Feedback,
 		saveOptions?: SaveOptions,
-	): Promise<Document> {
+	): Promise<Feedback> {
 		const doc = new this.model(feedback);
 
 		return doc.save(saveOptions);
