@@ -1,15 +1,24 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { type HydratedDocument } from 'mongoose';
+import { type Types, type HydratedDocument } from 'mongoose';
 
 export type FeedbackDoc = HydratedDocument<Feedback>;
 
+type FeedbackRet = {
+	_id?: Types.ObjectId;
+	__v?: string;
+	id?: string;
+};
+
 @Schema({
-	id: true,
-	toObject: {
-		getters: true,
-		minimize: true,
-	},
 	timestamps: true,
+	toJSON: {
+		transform: (_, ret: FeedbackRet): void => {
+			ret.id = ret._id?.toString();
+
+			delete ret._id;
+			delete ret.__v;
+		},
+	},
 })
 export class Feedback {
 	@Prop({
