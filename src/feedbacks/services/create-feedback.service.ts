@@ -27,6 +27,10 @@ export class CreateFeedbackService {
 			...dto,
 		};
 
-		return this.feedbacksRepository.createOne(feedback);
+		await this.feedbacksRepository.createOne(feedback);
+
+		return {
+			feedback,
+		};
 	}
 }

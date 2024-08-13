@@ -23,10 +23,10 @@ export class FeedbacksRepository {
 	async createOne(
 		feedback: Feedback,
 		saveOptions?: SaveOptions,
-	): Promise<Feedback> {
-		const doc = new this.model(feedback);
+	): Promise<void> {
+		const doc: FeedbackDoc = new this.model(feedback);
 
-		return doc.save(saveOptions);
+		await doc.save(saveOptions);
 	}
 
 	async find(

@@ -5,7 +5,7 @@ import { Test } from '@nestjs/testing';
 import { CreateFeedbackService } from './create-feedback.service';
 
 import { type CreateFeedbackDto } from '../dtos/create-feedback.dto';
-import { type Feedback } from '../feedback.entity';
+import { type FeedbackDoc } from '../feedback.entity';
 import { FeedbacksRepository } from '../feedbacks.repository';
 
 describe('CreateFeedbackService', () => {
@@ -65,14 +65,11 @@ describe('CreateFeedbackService', () => {
 	});
 
 	it('should create a feedback for a product successfully', async () => {
-		const feedback: Feedback = {
+		const feedback = {
 			...createFeedbackDto,
-		};
+		} as FeedbackDoc;
 
 		jest.spyOn(feedbacksRepository, 'find').mockResolvedValueOnce([]);
-		jest
-			.spyOn(feedbacksRepository, 'createOne')
-			.mockResolvedValueOnce(feedback);
 
 		const result = await createFeedbackService.exec(createFeedbackDto);
 
@@ -80,7 +77,9 @@ describe('CreateFeedbackService', () => {
 			productId: createFeedbackDto.productId,
 			userId: createFeedbackDto.userId,
 		});
-		expect(feedbacksRepository.createOne).toHaveBeenCalledWith(feedback);
-		expect(result).toEqual(feedback);
+		expect(feedbacksRepository.createOne).toHaveBeenCalledWith(
+			createFeedbackDto,
+		);
+		expect(result).toEqual({ feedback });
 	});
 });
