@@ -5,7 +5,6 @@ import { Test } from '@nestjs/testing';
 import { CreateFeedbackService } from './create-feedback.service';
 
 import { type CreateFeedbackDto } from '../dtos/create-feedback.dto';
-import { type FeedbackDoc } from '../feedback.entity';
 import { FeedbacksRepository } from '../feedbacks.repository';
 
 describe('CreateFeedbackService', () => {
@@ -53,9 +52,14 @@ describe('CreateFeedbackService', () => {
 	});
 
 	it('should throw if user has already sent a feedback for a product', async () => {
-		jest
-			.spyOn(feedbacksRepository, 'find')
-			.mockResolvedValueOnce([{ ...createFeedbackDto }]);
+		jest.spyOn(feedbacksRepository, 'find').mockResolvedValueOnce([
+			{
+				id: faker.string.uuid(),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+				...createFeedbackDto,
+			},
+		]);
 
 		await expect(createFeedbackService.exec(createFeedbackDto)).rejects.toThrow(
 			new BadRequestException(
@@ -65,10 +69,6 @@ describe('CreateFeedbackService', () => {
 	});
 
 	it('should create a feedback for a product successfully', async () => {
-		const feedback = {
-			...createFeedbackDto,
-		} as FeedbackDoc;
-
 		jest.spyOn(feedbacksRepository, 'find').mockResolvedValueOnce([]);
 
 		const result = await createFeedbackService.exec(createFeedbackDto);
@@ -77,9 +77,16 @@ describe('CreateFeedbackService', () => {
 			productId: createFeedbackDto.productId,
 			userId: createFeedbackDto.userId,
 		});
-		expect(feedbacksRepository.createOne).toHaveBeenCalledWith(
-			createFeedbackDto,
+		expect(feedbacksRepository.createOne).toHaveBeenCalledTimes(1);
+		expect(result.feedback).toHaveProperty('userId', createFeedbackDto.userId);
+		expect(result.feedback).toHaveProperty(
+			'productId',
+			createFeedbackDto.productId,
 		);
-		expect(result).toEqual({ feedback });
+		expect(result.feedback).toHaveProperty(
+			'comment',
+			createFeedbackDto.comment,
+		);
+		expect(result.feedback).toHaveProperty('rating', createFeedbackDto.rating);
 	});
 });

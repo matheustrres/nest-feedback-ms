@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { type Feedback } from '../feedback.entity';
+import { Feedback } from '../feedback.entity';
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { FeedbacksRepository } from '../feedbacks.repository';
 
@@ -23,9 +23,7 @@ export class CreateFeedbackService {
 			);
 		}
 
-		const feedback: Feedback = {
-			...dto,
-		};
+		const feedback = new Feedback(dto);
 
 		await this.feedbacksRepository.createOne(feedback);
 
