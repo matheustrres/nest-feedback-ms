@@ -12,12 +12,12 @@ export class CreateFeedbackService {
 
 	async exec(dto: CreateFeedbackDto) {
 		const hasUserAlreadySentFeedbackForProduct =
-			await this.feedbacksRepository.find({
+			await this.feedbacksRepository.findOne({
 				productId: dto.productId,
 				userId: dto.userId,
 			});
 
-		if (hasUserAlreadySentFeedbackForProduct.length > 0) {
+		if (hasUserAlreadySentFeedbackForProduct) {
 			throw new BadRequestException(
 				`User "${dto.userId} has already sent feedback for product "${dto.productId}".`,
 			);

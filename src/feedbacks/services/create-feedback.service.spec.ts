@@ -29,7 +29,7 @@ describe('CreateFeedbackService', () => {
 					provide: FeedbacksRepository,
 					useValue: {
 						createOne: jest.fn(),
-						find: jest.fn(),
+						findOne: jest.fn(),
 					},
 				},
 			],
@@ -52,14 +52,12 @@ describe('CreateFeedbackService', () => {
 	});
 
 	it('should throw if user has already sent a feedback for a product', async () => {
-		jest.spyOn(feedbacksRepository, 'find').mockResolvedValueOnce([
-			{
-				id: faker.string.uuid(),
-				createdAt: new Date(),
-				updatedAt: new Date(),
-				...createFeedbackDto,
-			},
-		]);
+		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce({
+			id: faker.string.uuid(),
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			...createFeedbackDto,
+		});
 
 		await expect(createFeedbackService.exec(createFeedbackDto)).rejects.toThrow(
 			new BadRequestException(
@@ -69,11 +67,11 @@ describe('CreateFeedbackService', () => {
 	});
 
 	it('should create a feedback for a product successfully', async () => {
-		jest.spyOn(feedbacksRepository, 'find').mockResolvedValueOnce([]);
+		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce(null);
 
 		const result = await createFeedbackService.exec(createFeedbackDto);
 
-		expect(feedbacksRepository.find).toHaveBeenCalledWith({
+		expect(feedbacksRepository.findOne).toHaveBeenCalledWith({
 			productId: createFeedbackDto.productId,
 			userId: createFeedbackDto.userId,
 		});

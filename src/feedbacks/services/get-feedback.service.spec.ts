@@ -18,7 +18,7 @@ describe('GetFeedbackByIdService', () => {
 				{
 					provide: FeedbacksRepository,
 					useValue: {
-						find: jest.fn(),
+						findOne: jest.fn(),
 					},
 				},
 			],
@@ -41,7 +41,7 @@ describe('GetFeedbackByIdService', () => {
 	});
 
 	it('should throw if no feedback is found with given id', async () => {
-		jest.spyOn(feedbacksRepository, 'find').mockResolvedValueOnce([]);
+		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce(null);
 
 		await expect(getFeedbackByIdService.exec('random_uuid()')).rejects.toThrow(
 			new BadRequestException(`No feedback was found with ID "random_uuid()".`),
@@ -63,12 +63,12 @@ describe('GetFeedbackByIdService', () => {
 		};
 
 		jest
-			.spyOn(feedbacksRepository, 'find')
-			.mockResolvedValueOnce([mockedFeedback]);
+			.spyOn(feedbacksRepository, 'findOne')
+			.mockResolvedValueOnce(mockedFeedback);
 
 		const { feedback } = await getFeedbackByIdService.exec(mockedFeedback.id);
 
-		expect(feedbacksRepository.find).toHaveBeenCalledWith({
+		expect(feedbacksRepository.findOne).toHaveBeenCalledWith({
 			id: mockedFeedback.id,
 		});
 		expect(feedback).toStrictEqual(mockedFeedback);

@@ -8,16 +8,16 @@ export class GetFeedbackByIdService {
 	constructor(private readonly feedbacksRepository: FeedbacksRepository) {}
 
 	async exec(id: string) {
-		const feedback = await this.feedbacksRepository.find({
+		const feedback = await this.feedbacksRepository.findOne({
 			id,
 		});
 
-		if (!feedback.length) {
+		if (!feedback) {
 			throw new BadRequestException(`No feedback was found with ID "${id}".`);
 		}
 
 		return {
-			feedback: feedback[0],
+			feedback,
 		};
 	}
 }

@@ -36,6 +36,13 @@ export class FeedbacksRepository {
 		return this.model.find(filter, queryOptions);
 	}
 
+	async findOne(
+		filter: FilterQuery<Feedback>,
+		queryOptions?: QueryOptions,
+	): Promise<Feedback | null> {
+		return this.model.findOne(filter, queryOptions);
+	}
+
 	async findById(id: string): Promise<Feedback | null> {
 		return this.model.findById(id);
 	}
