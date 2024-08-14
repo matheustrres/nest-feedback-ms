@@ -1,8 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { DeleteFeedbackService } from './delete-feedback.service';
 
+import { type Feedback } from '../feedback.entity';
 import { FeedbacksRepository } from '../feedbacks.repository';
 
 describe('DeleteFeedbackService', () => {
@@ -40,6 +42,32 @@ describe('DeleteFeedbackService', () => {
 
 		await expect(deleteFeedbackService.exec('random_uuid()')).rejects.toThrow(
 			new BadRequestException(`No feedback was found with ID "random_uuid()".`),
+		);
+	});
+
+	it('should delete a feedback', async () => {
+		const mockedFeedback: Feedback = {
+			id: faker.string.uuid(),
+			userId: faker.string.uuid(),
+			productId: faker.string.uuid(),
+			comment: faker.lorem.text(),
+			rating: faker.number.int({
+				min: 0,
+				max: 5,
+			}),
+			createdAt: faker.date.anytime(),
+			updatedAt: faker.date.anytime(),
+		};
+
+		jest
+			.spyOn(feedbacksRepository, 'findOne')
+			.mockResolvedValueOnce(mockedFeedback);
+
+		await expect(
+			deleteFeedbackService.exec(mockedFeedback.id),
+		).resolves.not.toThrow();
+		expect(feedbacksRepository.removeOne).toHaveBeenCalledWith(
+			mockedFeedback.id,
 		);
 	});
 });
