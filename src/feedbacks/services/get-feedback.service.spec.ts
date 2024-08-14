@@ -4,7 +4,7 @@ import { Test } from '@nestjs/testing';
 
 import { GetFeedbackByIdService } from './get-feedback.service';
 
-import { type Feedback } from '../feedback.entity';
+import { Feedback } from '../feedback.entity';
 import { FeedbacksRepository } from '../feedbacks.repository';
 
 describe('GetFeedbackByIdService', () => {
@@ -49,8 +49,7 @@ describe('GetFeedbackByIdService', () => {
 	});
 
 	it('should find a feedback by its id', async () => {
-		const mockedFeedback: Feedback = {
-			id: faker.string.uuid(),
+		const mockedFeedback = new Feedback({
 			userId: faker.string.uuid(),
 			productId: faker.string.uuid(),
 			comment: faker.lorem.text(),
@@ -58,9 +57,7 @@ describe('GetFeedbackByIdService', () => {
 				min: 0,
 				max: 5,
 			}),
-			createdAt: faker.date.anytime(),
-			updatedAt: faker.date.anytime(),
-		};
+		});
 
 		jest
 			.spyOn(feedbacksRepository, 'findOne')

@@ -83,6 +83,20 @@ export class Feedback {
 		this.createdAt = new Date();
 		this.updatedAt = new Date();
 	}
+
+	setComment(comment: string): void {
+		this.comment = comment;
+		this.touch();
+	}
+
+	setRating(rating: number): void {
+		this.rating = rating;
+		this.touch();
+	}
+
+	touch(): void {
+		this.updatedAt = new Date();
+	}
 }
 
 export const FeedbackSchema = SchemaFactory.createForClass(Feedback);

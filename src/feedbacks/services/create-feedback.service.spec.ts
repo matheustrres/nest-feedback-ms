@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import { CreateFeedbackService } from './create-feedback.service';
 
 import { type CreateFeedbackDto } from '../dtos/create-feedback.dto';
+import { Feedback } from '../feedback.entity';
 import { FeedbacksRepository } from '../feedbacks.repository';
 
 describe('CreateFeedbackService', () => {
@@ -52,12 +53,9 @@ describe('CreateFeedbackService', () => {
 	});
 
 	it('should throw if user has already sent a feedback for a product', async () => {
-		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce({
-			id: faker.string.uuid(),
-			createdAt: new Date(),
-			updatedAt: new Date(),
-			...createFeedbackDto,
-		});
+		jest
+			.spyOn(feedbacksRepository, 'findOne')
+			.mockResolvedValueOnce(new Feedback(createFeedbackDto));
 
 		await expect(createFeedbackService.exec(createFeedbackDto)).rejects.toThrow(
 			new BadRequestException(
