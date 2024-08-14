@@ -23,11 +23,15 @@ export class UpdateFeedbackService {
 			);
 		}
 
-		if (dto.comment) feedback.setComment(dto.comment);
-		if (dto.rating) feedback.setRating(dto.rating);
+		if (dto.comment) feedback.comment = dto.comment;
+		if (dto.rating) feedback.rating = dto.rating;
+
+		feedback.updatedAt = new Date();
 
 		await this.feedbacksRepository.updateOne(findQuery, {
-			$set: feedback,
+			comment: feedback.comment,
+			rating: feedback.rating,
+			updatedAt: feedback.updatedAt,
 		});
 
 		return {

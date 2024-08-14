@@ -79,11 +79,9 @@ describe('UpdateFeedbackService', () => {
 				productId: mockedFeedback.productId,
 			},
 			{
-				$set: {
-					...feedback,
-					comment: 'Underrated comment',
-					rating: 5,
-				},
+				comment: 'Underrated comment',
+				rating: 5,
+				updatedAt: feedback.updatedAt,
 			},
 		);
 		expect(feedback.comment).toEqual('Underrated comment');
