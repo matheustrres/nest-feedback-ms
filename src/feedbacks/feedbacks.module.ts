@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { CreateFeedbackController } from './controllers/create-feedback.controller';
+import { DeleteFeedbackController } from './controllers/delete-feedback.controller';
+import { GetFeedbackByIdController } from './controllers/get-feedback.controller';
+import { UpdateFeedbackController } from './controllers/update-feeback.controller';
 import { Feedback, FeedbackSchema } from './feedback.entity';
-import { FeedbacksController } from './feedbacks.controller';
 import { FeedbacksRepository } from './feedbacks.repository';
 import { CreateFeedbackService } from './services/create-feedback.service';
 import { DeleteFeedbackService } from './services/delete-feedback.service';
@@ -18,7 +21,12 @@ import { UpdateFeedbackService } from './services/update-feedback.service';
 			},
 		]),
 	],
-	controllers: [FeedbacksController],
+	controllers: [
+		CreateFeedbackController,
+		DeleteFeedbackController,
+		GetFeedbackByIdController,
+		UpdateFeedbackController,
+	],
 	providers: [
 		FeedbacksRepository,
 		CreateFeedbackService,
