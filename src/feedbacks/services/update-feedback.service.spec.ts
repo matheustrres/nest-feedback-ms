@@ -1,8 +1,10 @@
+import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { UpdateFeedbackService } from './update-feedback.service';
 
+import { Feedback } from '../feedback.entity';
 import { FeedbacksRepository } from '../feedbacks.repository';
 
 describe('UpdateFeedbackService', () => {
@@ -47,5 +49,44 @@ describe('UpdateFeedbackService', () => {
 		).rejects.toThrow(
 			new BadRequestException(`No feedback was found with ID "random_uuid()".`),
 		);
+	});
+
+	it('should update a feedback', async () => {
+		const mockedFeedback = new Feedback({
+			userId: faker.string.uuid(),
+			productId: faker.string.uuid(),
+			comment: 'Just a simple comment',
+			rating: 1,
+		});
+
+		jest
+			.spyOn(feedbacksRepository, 'findOne')
+			.mockResolvedValueOnce(mockedFeedback);
+
+		const { feedback } = await updateFeedbackService.exec({
+			feedbackId: mockedFeedback.id,
+			userId: mockedFeedback.userId,
+			productId: mockedFeedback.productId,
+			comment: 'Underrated comment',
+			rating: 5,
+		});
+
+		expect(feedbacksRepository.updateOne).toHaveBeenNthCalledWith(
+			1,
+			{
+				id: mockedFeedback.id,
+				userId: mockedFeedback.userId,
+				productId: mockedFeedback.productId,
+			},
+			{
+				$set: {
+					...feedback,
+					comment: 'Underrated comment',
+					rating: 5,
+				},
+			},
+		);
+		expect(feedback.comment).toEqual('Underrated comment');
+		expect(feedback.rating).toEqual(5);
 	});
 });
