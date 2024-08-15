@@ -2,11 +2,12 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
-import { type CreateFeedbackDto } from '../../dtos/create-feedback.dto';
-import { Feedback } from '../../feedback.entity';
-import { CreateFeedbackService } from '../../services/create-feedback.service';
-import { FeedbackViewModel } from '../../view-models/feedback';
 import { CreateFeedbackController } from '../create-feedback.controller';
+
+import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
+import { Feedback } from '@/feedbacks/feedback.entity';
+import { CreateFeedbackService } from '@/feedbacks/services/create-feedback.service';
+import { FeedbackViewModel } from '@/feedbacks/view-models/feedback';
 
 describe('CreateFeedbackController', () => {
 	let controller: CreateFeedbackController;

@@ -2,9 +2,10 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
-import { Feedback } from '../../feedback.entity';
-import { FeedbacksRepository } from '../../feedbacks.repository';
 import { DeleteFeedbackService } from '../delete-feedback.service';
+
+import { Feedback } from '@/feedbacks/feedback.entity';
+import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
 
 describe('DeleteFeedbackService', () => {
 	let deleteFeedbackService: DeleteFeedbackService;
@@ -45,7 +46,7 @@ describe('DeleteFeedbackService', () => {
 	});
 
 	it('should delete a feedback', async () => {
-		const mockedFeedback: Feedback = new Feedback({
+		const mockedFeedback = new Feedback({
 			userId: faker.string.uuid(),
 			productId: faker.string.uuid(),
 			comment: faker.lorem.text(),

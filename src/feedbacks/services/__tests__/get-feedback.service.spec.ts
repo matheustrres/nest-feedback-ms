@@ -2,9 +2,10 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
-import { Feedback } from '../../feedback.entity';
-import { FeedbacksRepository } from '../../feedbacks.repository';
 import { GetFeedbackByIdService } from '../get-feedback.service';
+
+import { Feedback } from '@/feedbacks/feedback.entity';
+import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
 
 describe('GetFeedbackByIdService', () => {
 	let getFeedbackByIdService: GetFeedbackByIdService;
