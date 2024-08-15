@@ -8,9 +8,9 @@ import { FeedbacksRepository } from '../feedbacks.repository';
 export class UpdateFeedbackService {
 	constructor(private readonly feedbacksRepository: FeedbacksRepository) {}
 
-	async exec(dto: UpdateFeedbackDto) {
+	async exec(id: string, dto: UpdateFeedbackDto) {
 		const findQuery = {
-			id: dto.feedbackId,
+			id,
 			userId: dto.userId,
 			productId: dto.productId,
 		};
@@ -18,9 +18,7 @@ export class UpdateFeedbackService {
 		const feedback = await this.feedbacksRepository.findOne(findQuery);
 
 		if (!feedback) {
-			throw new NotFoundException(
-				`No feedback was found with ID "${dto.feedbackId}".`,
-			);
+			throw new NotFoundException(`No feedback was found with ID "${id}".`);
 		}
 
 		if (dto.comment) feedback.comment = dto.comment;

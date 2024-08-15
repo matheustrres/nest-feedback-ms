@@ -45,8 +45,7 @@ describe('UpdateFeedbackService', () => {
 		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce(null);
 
 		await expect(
-			updateFeedbackService.exec({
-				feedbackId: 'random_uuid()',
+			updateFeedbackService.exec('random_uuid()', {
 				productId: 'random_uuid()',
 				userId: 'random_uuid()',
 			}),
@@ -67,8 +66,7 @@ describe('UpdateFeedbackService', () => {
 			.spyOn(feedbacksRepository, 'findOne')
 			.mockResolvedValueOnce(mockedFeedback);
 
-		const { feedback } = await updateFeedbackService.exec({
-			feedbackId: mockedFeedback.id,
+		const { feedback } = await updateFeedbackService.exec(mockedFeedback.id, {
 			userId: mockedFeedback.userId,
 			productId: mockedFeedback.productId,
 			comment: 'Underrated comment',

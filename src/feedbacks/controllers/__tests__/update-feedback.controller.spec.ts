@@ -13,8 +13,9 @@ describe('UpdateFeedbackController', () => {
 	let controller: UpdateFeedbackController;
 	let service: UpdateFeedbackService;
 
+	const id = faker.string.uuid();
+
 	const updateFeedbackDto: UpdateFeedbackDto = {
-		feedbackId: faker.string.uuid(),
 		productId: faker.string.uuid(),
 		userId: faker.string.uuid(),
 		comment: faker.lorem.lines(1),
@@ -65,20 +66,13 @@ describe('UpdateFeedbackController', () => {
 		jest
 			.spyOn(service, 'exec')
 			.mockRejectedValueOnce(
-				new NotFoundException(
-					`No feedback was found with ID "${updateFeedbackDto.feedbackId}".`,
-				),
+				new NotFoundException(`No feedback was found with ID "${id}".`),
 			);
 
-		const promise = controller.handle(
-			updateFeedbackDto.feedbackId,
-			updateFeedbackDto,
-		);
+		const promise = controller.handle(id, updateFeedbackDto);
 
 		await expect(promise).rejects.toThrow(
-			new NotFoundException(
-				`No feedback was found with ID "${updateFeedbackDto.feedbackId}".`,
-			),
+			new NotFoundException(`No feedback was found with ID "${id}".`),
 		);
 	});
 
@@ -87,9 +81,9 @@ describe('UpdateFeedbackController', () => {
 			feedback: mockedFeedback,
 		});
 
-		await controller.handle(updateFeedbackDto.feedbackId, updateFeedbackDto);
+		await controller.handle(id, updateFeedbackDto);
 
-		expect(execSpy).toHaveBeenCalledWith(updateFeedbackDto);
+		expect(execSpy).toHaveBeenCalledWith(id, updateFeedbackDto);
 	});
 
 	it('should return formatted feedback', async () => {
@@ -103,10 +97,7 @@ describe('UpdateFeedbackController', () => {
 			.spyOn(service, 'exec')
 			.mockResolvedValueOnce({ feedback: updatedFeedback });
 
-		const result = await controller.handle(
-			updateFeedbackDto.feedbackId,
-			updateFeedbackDto,
-		);
+		const result = await controller.handle(id, updateFeedbackDto);
 
 		expect(result).toEqual(FeedbackViewModel.toJson(updatedFeedback));
 	});
