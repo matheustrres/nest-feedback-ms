@@ -5,6 +5,7 @@ import { Test } from '@nestjs/testing';
 import { UpdateFeedbackController } from '../update-feeback.controller';
 
 import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
+import { Feedback } from '@/feedbacks/feedback.entity';
 import { UpdateFeedbackService } from '@/feedbacks/services/update-feedback.service';
 
 describe('UpdateFeedbackController', () => {
@@ -21,6 +22,15 @@ describe('UpdateFeedbackController', () => {
 			max: 5,
 		}),
 	};
+
+	const mockedFeedback = new Feedback({
+		...updateFeedbackDto,
+		comment: faker.lorem.lines(1),
+		rating: faker.number.int({
+			min: 0,
+			max: 5,
+		}),
+	});
 
 	beforeEach(async () => {
 		const moduleRef = await Test.createTestingModule({
@@ -65,5 +75,15 @@ describe('UpdateFeedbackController', () => {
 				`No feedback was found with ID "${updateFeedbackDto.feedbackId}".`,
 			),
 		);
+	});
+
+	it('should call service with correct arguments', async () => {
+		const execSpy = jest.spyOn(service, 'exec').mockResolvedValueOnce({
+			feedback: mockedFeedback,
+		});
+
+		await controller.handle(updateFeedbackDto.feedbackId, updateFeedbackDto);
+
+		expect(execSpy).toHaveBeenCalledWith(updateFeedbackDto);
 	});
 });
