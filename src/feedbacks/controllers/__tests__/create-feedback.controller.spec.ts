@@ -2,14 +2,25 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
+import { type CreateFeedbackDto } from '../../dtos/create-feedback.dto';
+import { Feedback } from '../../feedback.entity';
 import { CreateFeedbackService } from '../../services/create-feedback.service';
+import { FeedbackViewModel } from '../../view-models/feedback';
 import { CreateFeedbackController } from '../create-feedback.controller';
-
-import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 
 describe('CreateFeedbackController', () => {
 	let controller: CreateFeedbackController;
 	let service: CreateFeedbackService;
+
+	const createFeedbackDto: CreateFeedbackDto = {
+		userId: faker.string.uuid(),
+		productId: faker.string.uuid(),
+		comment: faker.lorem.lines(1),
+		rating: faker.number.int({
+			min: 0,
+			max: 5,
+		}),
+	};
 
 	beforeEach(async () => {
 		const moduleRef = await Test.createTestingModule({
@@ -35,17 +46,11 @@ describe('CreateFeedbackController', () => {
 		expect(controller).toBeDefined();
 	});
 
-	it('should throw an error if service throws a BadRequestException', async () => {
-		const createFeedbackDto: CreateFeedbackDto = {
-			userId: faker.string.uuid(),
-			productId: faker.string.uuid(),
-			comment: faker.lorem.lines(1),
-			rating: faker.number.int({
-				min: 0,
-				max: 5,
-			}),
-		};
+	afterAll(() => {
+		jest.clearAllMocks();
+	});
 
+	it('should throw an error if service throws a BadRequestException', async () => {
 		jest
 			.spyOn(service, 'exec')
 			.mockRejectedValueOnce(
@@ -57,5 +62,18 @@ describe('CreateFeedbackController', () => {
 		const promise = controller.handle(createFeedbackDto);
 
 		await expect(promise).rejects.toThrow(BadRequestException);
+	});
+
+	it('should return formatted feedback', async () => {
+		const mockedFeedback = new Feedback(createFeedbackDto);
+
+		jest
+			.spyOn(service, 'exec')
+			.mockResolvedValueOnce({ feedback: mockedFeedback });
+
+		const result = await controller.handle(createFeedbackDto);
+
+		expect(service.exec).toHaveBeenCalledWith(createFeedbackDto);
+		expect(result).toEqual(FeedbackViewModel.toJson(mockedFeedback));
 	});
 });
