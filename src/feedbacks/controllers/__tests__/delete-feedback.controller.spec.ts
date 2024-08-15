@@ -48,4 +48,13 @@ describe('DeleteFeedbackController', () => {
 			`No feedback was found with ID "${id}".`,
 		);
 	});
+
+	it('should delete a feedback', async () => {
+		const id = 'random_uuid()';
+		const execSpy = jest.spyOn(service, 'exec');
+
+		await controller.handle(id);
+
+		expect(execSpy).toHaveBeenCalledWith(id);
+	});
 });
