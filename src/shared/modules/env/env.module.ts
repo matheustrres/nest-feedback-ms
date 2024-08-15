@@ -9,7 +9,7 @@ import { EnvService } from './env.service';
 		ConfigModule.forRoot({
 			isGlobal: true,
 			cache: false,
-			envFilePath: '.env',
+			envFilePath: ['.env', '.env.dev', '.env.test', '.env.staging'],
 			validate: (config: Record<string, any>) => envSchema.parse(config),
 		}),
 	],
