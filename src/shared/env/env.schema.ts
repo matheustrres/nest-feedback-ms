@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const envSchema = z.object({
 	PORT: z.coerce.number().optional().default(3333),
 	NODE_ENV: z
-		.enum(['production', 'development', 'staging'])
+		.enum(['production', 'development', 'staging', 'test'])
 		.default('development'),
 	MONGODB_USER: z.string(),
 	MONGODB_PASSWORD: z.string(),
