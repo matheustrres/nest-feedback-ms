@@ -2,8 +2,14 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 
-async function bootstrap() {
+import { EnvService } from '@/shared/modules/env/env.service';
+
+(async () => {
 	const app = await NestFactory.create(AppModule);
-	await app.listen(3000);
-}
-bootstrap();
+
+	app.enableShutdownHooks();
+
+	const envService = app.get(EnvService);
+
+	await app.listen(envService.getKey('PORT'));
+})();
