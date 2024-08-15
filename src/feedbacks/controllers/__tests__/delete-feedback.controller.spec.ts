@@ -9,6 +9,8 @@ describe('DeleteFeedbackController', () => {
 	let controller: DeleteFeedbackController;
 	let service: DeleteFeedbackService;
 
+	const id = 'random_uuid()';
+
 	beforeEach(async () => {
 		const moduleRef = await Test.createTestingModule({
 			controllers: [DeleteFeedbackController],
@@ -34,8 +36,6 @@ describe('DeleteFeedbackController', () => {
 	});
 
 	it('should throw if no feedback is found with given id', async () => {
-		const id = 'random_uuid()';
-
 		jest
 			.spyOn(service, 'exec')
 			.mockRejectedValueOnce(
@@ -47,6 +47,14 @@ describe('DeleteFeedbackController', () => {
 		await expect(promise).rejects.toThrow(
 			`No feedback was found with ID "${id}".`,
 		);
+	});
+
+	it('should call service with correct feedback id', async () => {
+		const execSpy = jest.spyOn(service, 'exec').mockResolvedValueOnce();
+
+		await controller.handle(id);
+
+		expect(execSpy).toHaveBeenCalledWith(id);
 	});
 
 	it('should delete a feedback', async () => {
