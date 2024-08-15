@@ -7,6 +7,7 @@ import { UpdateFeedbackController } from '../update-feeback.controller';
 import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { UpdateFeedbackService } from '@/feedbacks/services/update-feedback.service';
+import { FeedbackViewModel } from '@/feedbacks/view-models/feedback';
 
 describe('UpdateFeedbackController', () => {
 	let controller: UpdateFeedbackController;
@@ -85,5 +86,24 @@ describe('UpdateFeedbackController', () => {
 		await controller.handle(updateFeedbackDto.feedbackId, updateFeedbackDto);
 
 		expect(execSpy).toHaveBeenCalledWith(updateFeedbackDto);
+	});
+
+	it('should return formatted feedback', async () => {
+		const updatedFeedback: Feedback = {
+			...mockedFeedback,
+			rating: 2,
+			comment: 'Bad product',
+		};
+
+		jest
+			.spyOn(service, 'exec')
+			.mockResolvedValueOnce({ feedback: updatedFeedback });
+
+		const result = await controller.handle(
+			updateFeedbackDto.feedbackId,
+			updateFeedbackDto,
+		);
+
+		expect(result).toEqual(FeedbackViewModel.toJson(updatedFeedback));
 	});
 });
