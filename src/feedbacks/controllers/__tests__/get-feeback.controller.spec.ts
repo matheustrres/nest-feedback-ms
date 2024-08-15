@@ -7,6 +7,7 @@ import { GetFeedbackByIdController } from '../get-feedback.controller';
 import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { GetFeedbackByIdService } from '@/feedbacks/services/get-feedback.service';
+import { FeedbackViewModel } from '@/feedbacks/view-models/feedback';
 
 describe('GetFeedbackByIdController', () => {
 	let controller: GetFeedbackByIdController;
@@ -72,5 +73,15 @@ describe('GetFeedbackByIdController', () => {
 		await controller.handle(id);
 
 		expect(execSpy).toHaveBeenCalledWith(id);
+	});
+
+	it('should return formatted feedback', async () => {
+		jest
+			.spyOn(service, 'exec')
+			.mockResolvedValueOnce({ feedback: mockedFeedback });
+
+		const result = await controller.handle(id);
+
+		expect(result).toEqual(FeedbackViewModel.toJson(mockedFeedback));
 	});
 });
