@@ -1,4 +1,11 @@
-import { Controller, Get, HttpCode, HttpStatus, Param } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	ParseUUIDPipe,
+} from '@nestjs/common';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { GetFeedbackByIdService } from '../services/get-feedback.service';
@@ -10,7 +17,7 @@ export class GetFeedbackByIdController {
 
 	@Get('/feedback/:id')
 	@HttpCode(HttpStatus.OK)
-	async handle(@Param('id') id: string) {
+	async handle(@Param('id', new ParseUUIDPipe()) id: string) {
 		const { feedback } = await this.service.exec(id);
 
 		return FeedbackViewModel.toJson(feedback);

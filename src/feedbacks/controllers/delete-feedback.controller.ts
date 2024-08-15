@@ -4,6 +4,7 @@ import {
 	HttpCode,
 	HttpStatus,
 	Param,
+	ParseUUIDPipe,
 } from '@nestjs/common';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -15,7 +16,7 @@ export class DeleteFeedbackController {
 
 	@Delete('/feedback/:id')
 	@HttpCode(HttpStatus.OK)
-	async handle(@Param('id') id: string): Promise<void> {
+	async handle(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
 		return this.service.exec(id);
 	}
 }
