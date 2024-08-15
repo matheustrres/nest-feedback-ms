@@ -30,6 +30,10 @@ describe('DeleteFeedbackController', () => {
 		service = moduleRef.get<DeleteFeedbackService>(DeleteFeedbackService);
 	});
 
+	afterAll(() => {
+		jest.clearAllMocks();
+	});
+
 	it('should be defined', () => {
 		expect(service).toBeDefined();
 		expect(controller).toBeDefined();

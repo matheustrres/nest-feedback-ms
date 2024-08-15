@@ -52,6 +52,10 @@ describe('UpdateFeedbackController', () => {
 		service = moduleRef.get<UpdateFeedbackService>(UpdateFeedbackService);
 	});
 
+	afterAll(() => {
+		jest.clearAllMocks();
+	});
+
 	it('should be defined', () => {
 		expect(service).toBeDefined();
 		expect(controller).toBeDefined();

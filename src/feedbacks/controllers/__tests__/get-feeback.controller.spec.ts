@@ -46,6 +46,10 @@ describe('GetFeedbackByIdController', () => {
 		service = moduleRef.get<GetFeedbackByIdService>(GetFeedbackByIdService);
 	});
 
+	afterAll(() => {
+		jest.clearAllMocks();
+	});
+
 	it('should be defined', () => {
 		expect(service).toBeDefined();
 		expect(controller).toBeDefined();
