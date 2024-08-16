@@ -11,7 +11,7 @@ import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exceptio
 import { DatabaseModule } from '@/shared/modules/database/database.module';
 import { DatabaseService } from '@/shared/modules/database/database.service';
 
-const makeDto = () => ({
+const makeDto = (): CreateFeedbackDto => ({
 	userId: faker.string.uuid(),
 	productId: faker.string.uuid(),
 	comment: faker.lorem.lines(1),
@@ -99,6 +99,19 @@ describe('FeedbacksModule', () => {
 					expect(res.body['id']).toBeDefined();
 					expect(res.body['createdAt']).toBeDefined();
 					expect(res.body['updatedAt']).toBeDefined();
+				});
+		});
+	});
+
+	describe('X GET /feedbacks/feedback/:id', () => {
+		it('should return an error if an invalid UUID is provided', async () => {
+			return request(app.getHttpServer())
+				.get('/feedbacks/feedback/invalid-uuid')
+				.expect(400)
+				.expect({
+					message: 'Validation failed (uuid is expected)',
+					error: 'Bad Request',
+					statusCode: 400,
 				});
 		});
 	});
