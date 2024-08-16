@@ -4,11 +4,11 @@ import {
 	type ExceptionFilter,
 } from '@nestjs/common';
 import { type Request, type Response } from 'express';
-import { ZodError } from 'zod';
+import { ZodError, ZodIssue } from 'zod';
 
 @Catch(ZodError)
 export class ZodExceptionFilter implements ExceptionFilter {
-	catch(exception: ZodError, host: ArgumentsHost) {
+	catch(exception: ZodError, host: ArgumentsHost): Response {
 		const httpCtx = host.switchToHttp();
 
 		const req = httpCtx.getRequest<Request>();
@@ -20,8 +20,16 @@ export class ZodExceptionFilter implements ExceptionFilter {
 			timestamp: new Date().toISOString(),
 			status: 'ERROR',
 			statusCode: 400,
-			content: exception.issues,
+			content: this.#mapIssuesToResponse(exception.issues),
 			endpoint,
 		});
+	}
+
+	#mapIssuesToResponse(issues: ZodIssue[]) {
+		return issues.map(({ code, path, message }) => ({
+			code,
+			path: path[0],
+			message,
+		}));
 	}
 }
