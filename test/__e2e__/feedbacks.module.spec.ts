@@ -114,6 +114,19 @@ describe('FeedbacksModule', () => {
 					statusCode: 400,
 				});
 		});
+
+		it('should return an error if no feedback is found with given id', async () => {
+			const id = faker.string.uuid();
+
+			return request(app.getHttpServer())
+				.get(`/feedbacks/feedback/${id}`)
+				.expect(400)
+				.expect({
+					message: `No feedback was found with ID "${id}".`,
+					error: 'Bad Request',
+					statusCode: 400,
+				});
+		});
 	});
 
 	afterAll(async () => {
