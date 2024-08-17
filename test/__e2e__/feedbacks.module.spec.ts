@@ -127,6 +127,21 @@ describe('FeedbacksModule', () => {
 					statusCode: 400,
 				});
 		});
+
+		it('should return a feedback object', async () => {
+			const server = app.getHttpServer();
+			const dto = makeDto();
+
+			const { body } = await request(server)
+				.post('/feedbacks')
+				.send(dto)
+				.expect(201);
+
+			return request(server)
+				.get(`/feedbacks/feedback/${body['id']}`)
+				.expect(200)
+				.then((res) => expect(res.body).toMatchObject(dto));
+		});
 	});
 
 	afterAll(async () => {
