@@ -29,6 +29,7 @@ module.exports = {
 					"sibling",
 					"parent",
 					"/^@/feedbacks/",
+					"/^@/health/",
 					"/^@/shared/",
 					"/^#/"
 				],
