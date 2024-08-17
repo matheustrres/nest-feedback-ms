@@ -144,6 +144,19 @@ describe('FeedbacksModule', () => {
 		});
 	});
 
+	describe('X DELETE /feedbacks/feedback/:id', () => {
+		it('should return an error if an invalid UUID is provided', async () => {
+			return request(app.getHttpServer())
+				.delete('/feedbacks/feedback/invalid-uuid')
+				.expect(400)
+				.expect({
+					message: 'Validation failed (uuid is expected)',
+					error: 'Bad Request',
+					statusCode: 400,
+				});
+		});
+	});
+
 	afterAll(async () => {
 		await conn.dropDatabase();
 		await conn.close();
