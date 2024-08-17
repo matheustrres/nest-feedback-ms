@@ -168,6 +168,19 @@ describe('FeedbacksModule', () => {
 					statusCode: 400,
 				});
 		});
+
+		it('should delete a feedback', async () => {
+			const server = app.getHttpServer();
+
+			const { body } = await request(server)
+				.post('/feedbacks')
+				.send(makeDto())
+				.expect(201);
+
+			return request(server)
+				.delete(`/feedbacks/feedback/${body['id']}`)
+				.expect(200);
+		});
 	});
 
 	afterAll(async () => {
