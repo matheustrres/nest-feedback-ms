@@ -189,15 +189,38 @@ describe('FeedbacksModule', () => {
 		it('should return an error if an invalid UUID is provided', async () => {
 			return request(app.getHttpServer())
 				.patch('/feedbacks/feedback/invalid-uuid')
-				.expect(400)
 				.send({
-					userId: 'random_uuid()',
-					productId: 'random_uuid()',
+					userId: faker.string.uuid(),
+					productId: faker.string.uuid(),
 				} as UpdateFeedbackDto)
+				.expect(400)
 				.expect({
 					message: 'Validation failed (uuid is expected)',
 					error: 'Bad Request',
 					statusCode: 400,
+				});
+		});
+
+		it('should return an error if required arguments are not provided', async () => {
+			const id = faker.string.uuid();
+
+			return request(app.getHttpServer())
+				.patch(`/feedbacks/feedback/${id}`)
+				.send({
+					comment: faker.lorem.lines(1),
+				} as UpdateFeedbackDto)
+				.expect(400)
+				.expect((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						statusCode: 400,
+						content: [
+							{ code: 'invalid_type', path: 'userId', message: 'Required' },
+							{ code: 'invalid_type', path: 'productId', message: 'Required' },
+						],
+						endpoint: `PATCH /feedbacks/feedback/${id}`,
+					});
+					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
 	});
