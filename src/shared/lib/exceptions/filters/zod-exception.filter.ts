@@ -4,7 +4,7 @@ import {
 	type ExceptionFilter,
 } from '@nestjs/common';
 import { type Request, type Response } from 'express';
-import { ZodError, ZodIssue } from 'zod';
+import { ZodError, type ZodIssue } from 'zod';
 
 @Catch(ZodError)
 export class ZodExceptionFilter implements ExceptionFilter {
