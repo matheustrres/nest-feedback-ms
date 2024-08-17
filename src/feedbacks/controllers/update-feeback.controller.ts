@@ -1,4 +1,12 @@
-import { Body, Controller, Param, ParseUUIDPipe, Patch } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	HttpCode,
+	HttpStatus,
+	Param,
+	ParseUUIDPipe,
+	Patch,
+} from '@nestjs/common';
 
 import {
 	UpdateFeedbackBodyPipe,
@@ -13,6 +21,7 @@ export class UpdateFeedbackController {
 	constructor(private readonly service: UpdateFeedbackService) {}
 
 	@Patch('/feedback/:id')
+	@HttpCode(HttpStatus.OK)
 	async handle(
 		@Param('id', new ParseUUIDPipe()) id: string,
 		@Body(UpdateFeedbackBodyPipe)
