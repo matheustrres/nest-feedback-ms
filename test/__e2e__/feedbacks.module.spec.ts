@@ -5,6 +5,7 @@ import { type Connection } from 'mongoose';
 import request from 'supertest';
 
 import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
+import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
 import { FeedbacksModule } from '@/feedbacks/feedbacks.module';
 
 import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exception.filter';
@@ -31,6 +32,7 @@ describe('FeedbacksModule', () => {
 		}).compile();
 
 		app = moduleRef.createNestApplication();
+		app.enableShutdownHooks();
 		app.useGlobalFilters(new ZodExceptionFilter());
 		await app.init();
 
@@ -180,6 +182,23 @@ describe('FeedbacksModule', () => {
 			return request(server)
 				.delete(`/feedbacks/feedback/${body['id']}`)
 				.expect(200);
+		});
+	});
+
+	describe('X PATCH /feedbacks/feedback/:id', () => {
+		it('should return an error if an invalid UUID is provided', async () => {
+			return request(app.getHttpServer())
+				.patch('/feedbacks/feedback/invalid-uuid')
+				.expect(400)
+				.send({
+					userId: 'random_uuid()',
+					productId: 'random_uuid()',
+				} as UpdateFeedbackDto)
+				.expect({
+					message: 'Validation failed (uuid is expected)',
+					error: 'Bad Request',
+					statusCode: 400,
+				});
 		});
 	});
 
