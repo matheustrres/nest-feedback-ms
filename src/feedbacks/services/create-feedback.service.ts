@@ -19,7 +19,7 @@ export class CreateFeedbackService {
 
 		if (hasUserAlreadySentFeedbackForProduct) {
 			throw new BadRequestException(
-				`User "${dto.userId} has already sent feedback for product "${dto.productId}".`,
+				`User "${dto.userId}" has already sent feedback for product "${dto.productId}".`,
 			);
 		}
 
