@@ -223,6 +223,29 @@ describe('FeedbacksModule', () => {
 					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
+
+		it('should return an updated & formatted feedback', async () => {
+			const server = app.getHttpServer();
+			const dto = makeDto();
+
+			const { body } = await request(server)
+				.post('/feedbacks')
+				.send(dto)
+				.expect(201);
+
+			return request(server)
+				.patch(`/feedbacks/feedback/${body['id']}`)
+				.send({
+					userId: dto.userId,
+					productId: dto.productId,
+					comment: 'Just a random comment',
+				} as UpdateFeedbackDto)
+				.expect(200)
+				.then((res) => {
+					expect(res.body['comment']).toBe('Just a random comment');
+					expect(res.body['rating']).toEqual(dto.rating);
+				});
+		});
 	});
 
 	afterAll(async () => {
