@@ -8,7 +8,7 @@ import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
 import { FeedbacksModule } from '@/feedbacks/feedbacks.module';
 
-import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exception.filter';
+import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exception-filter';
 import { DatabaseModule } from '@/shared/modules/database/database.module';
 import { DatabaseService } from '@/shared/modules/database/database.service';
 
