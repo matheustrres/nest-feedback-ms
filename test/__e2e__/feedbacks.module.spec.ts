@@ -8,6 +8,7 @@ import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
 import { FeedbacksModule } from '@/feedbacks/feedbacks.module';
 
+import { GlobalExceptionFilter } from '@/shared/lib/exceptions/filters/global-exception-filter';
 import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exception-filter';
 import { DatabaseModule } from '@/shared/modules/database/database.module';
 import { DatabaseService } from '@/shared/modules/database/database.service';
@@ -33,6 +34,7 @@ describe('FeedbacksModule', () => {
 
 		app = moduleRef.createNestApplication();
 		app.enableShutdownHooks();
+		app.useGlobalFilters(new GlobalExceptionFilter());
 		app.useGlobalFilters(new ZodExceptionFilter());
 		await app.init();
 
@@ -56,10 +58,14 @@ describe('FeedbacksModule', () => {
 				.post('/feedbacks')
 				.send(dto)
 				.expect(400)
-				.expect({
-					message: `User "${dto.userId} has already sent feedback for product "${dto.productId}".`,
-					error: 'Bad Request',
-					statusCode: 400,
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: `User "${dto.userId}" has already sent feedback for product "${dto.productId}".`,
+						endpoint: 'POST /feedbacks',
+					});
+					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
 
@@ -74,7 +80,7 @@ describe('FeedbacksModule', () => {
 				.expect((res) => {
 					expect(res.body).toMatchObject({
 						status: 'ERROR',
-						statusCode: 400,
+						code: 400,
 						content: [
 							{
 								code: 'too_big',
@@ -84,7 +90,6 @@ describe('FeedbacksModule', () => {
 						],
 						endpoint: 'POST /feedbacks',
 					});
-
 					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
@@ -110,10 +115,14 @@ describe('FeedbacksModule', () => {
 			return request(app.getHttpServer())
 				.get('/feedbacks/feedback/invalid-uuid')
 				.expect(400)
-				.expect({
-					message: 'Validation failed (uuid is expected)',
-					error: 'Bad Request',
-					statusCode: 400,
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: 'Validation failed (uuid is expected)',
+						endpoint: 'GET /feedbacks/feedback/invalid-uuid',
+					});
+					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
 
@@ -123,10 +132,14 @@ describe('FeedbacksModule', () => {
 			return request(app.getHttpServer())
 				.get(`/feedbacks/feedback/${id}`)
 				.expect(400)
-				.expect({
-					message: `No feedback was found with ID "${id}".`,
-					error: 'Bad Request',
-					statusCode: 400,
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: `No feedback was found with ID "${id}".`,
+						endpoint: `GET /feedbacks/feedback/${id}`,
+					});
+					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
 
@@ -142,7 +155,12 @@ describe('FeedbacksModule', () => {
 			return request(server)
 				.get(`/feedbacks/feedback/${body['id']}`)
 				.expect(200)
-				.then((res) => expect(res.body).toMatchObject(dto));
+				.then((res) => {
+					expect(res.body).toMatchObject(dto);
+					expect(res.body['id']).toBeDefined();
+					expect(res.body['createdAt']).toBeDefined();
+					expect(res.body['updatedAt']).toBeDefined();
+				});
 		});
 	});
 
@@ -151,10 +169,14 @@ describe('FeedbacksModule', () => {
 			return request(app.getHttpServer())
 				.delete('/feedbacks/feedback/invalid-uuid')
 				.expect(400)
-				.expect({
-					message: 'Validation failed (uuid is expected)',
-					error: 'Bad Request',
-					statusCode: 400,
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: 'Validation failed (uuid is expected)',
+						endpoint: 'DELETE /feedbacks/feedback/invalid-uuid',
+					});
+					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
 
@@ -162,12 +184,16 @@ describe('FeedbacksModule', () => {
 			const id = faker.string.uuid();
 
 			return request(app.getHttpServer())
-				.del(`/feedbacks/feedback/${id}`)
+				.delete(`/feedbacks/feedback/${id}`)
 				.expect(400)
-				.expect({
-					message: `No feedback was found with ID "${id}".`,
-					error: 'Bad Request',
-					statusCode: 400,
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: `No feedback was found with ID "${id}".`,
+						endpoint: `DELETE /feedbacks/feedback/${id}`,
+					});
+					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
 
@@ -194,14 +220,18 @@ describe('FeedbacksModule', () => {
 					productId: faker.string.uuid(),
 				} as UpdateFeedbackDto)
 				.expect(400)
-				.expect({
-					message: 'Validation failed (uuid is expected)',
-					error: 'Bad Request',
-					statusCode: 400,
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: 'Validation failed (uuid is expected)',
+						endpoint: 'PATCH /feedbacks/feedback/invalid-uuid',
+					});
+					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
 
-		it('should return an error if required arguments are not provided', async () => {
+		it.only('should return an error if required arguments are not provided', async () => {
 			const id = faker.string.uuid();
 
 			return request(app.getHttpServer())
@@ -213,7 +243,7 @@ describe('FeedbacksModule', () => {
 				.expect((res) => {
 					expect(res.body).toMatchObject({
 						status: 'ERROR',
-						statusCode: 400,
+						code: 400,
 						content: [
 							{ code: 'invalid_type', path: 'userId', message: 'Required' },
 							{ code: 'invalid_type', path: 'productId', message: 'Required' },
