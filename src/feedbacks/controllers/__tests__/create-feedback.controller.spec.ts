@@ -56,7 +56,7 @@ describe('CreateFeedbackController', () => {
 			.spyOn(service, 'exec')
 			.mockRejectedValueOnce(
 				new BadRequestException(
-					`User "${createFeedbackDto.userId} has already sent feedback for product "${createFeedbackDto.productId}".`,
+					`User "${createFeedbackDto.userId}" has already sent feedback for product "${createFeedbackDto.productId}".`,
 				),
 			);
 

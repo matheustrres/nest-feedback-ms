@@ -1,11 +1,12 @@
 import { faker } from '@faker-js/faker';
-import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { GetFeedbackByIdService } from '../get-feedback.service';
 
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
+
+import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
 
 describe('GetFeedbackByIdService', () => {
 	let getFeedbackByIdService: GetFeedbackByIdService;
@@ -44,7 +45,7 @@ describe('GetFeedbackByIdService', () => {
 		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce(null);
 
 		await expect(getFeedbackByIdService.exec('random_uuid()')).rejects.toThrow(
-			new BadRequestException(`No feedback was found with ID "random_uuid()".`),
+			FeedbackNotFoundException.byId('random_uuid()'),
 		);
 	});
 

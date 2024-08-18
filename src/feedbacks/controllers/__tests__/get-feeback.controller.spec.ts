@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { GetFeedbackByIdController } from '../get-feedback.controller';
@@ -8,6 +7,8 @@ import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { GetFeedbackByIdService } from '@/feedbacks/services/get-feedback.service';
 import { FeedbackViewModel } from '@/feedbacks/view-models/feedback';
+
+import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
 
 describe('GetFeedbackByIdController', () => {
 	let controller: GetFeedbackByIdController;
@@ -58,14 +59,12 @@ describe('GetFeedbackByIdController', () => {
 	it('should throw if no feedback is found with given id', async () => {
 		jest
 			.spyOn(service, 'exec')
-			.mockRejectedValueOnce(
-				new BadRequestException(`No feedback was found with ID "${id}".`),
-			);
+			.mockRejectedValueOnce(FeedbackNotFoundException.byId(id));
 
 		const promise = controller.handle(id);
 
 		await expect(promise).rejects.toThrow(
-			`No feedback was found with ID "${id}".`,
+			FeedbackNotFoundException.byId(id).message,
 		);
 	});
 

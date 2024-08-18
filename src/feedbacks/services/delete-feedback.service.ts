@@ -1,7 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 import { FeedbacksRepository } from '../feedbacks.repository';
+
+import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
 
 @Injectable()
 export class DeleteFeedbackService {
@@ -12,9 +14,7 @@ export class DeleteFeedbackService {
 			id,
 		});
 
-		if (!feedback) {
-			throw new BadRequestException(`No feedback was found with ID "${id}".`);
-		}
+		if (!feedback) throw FeedbackNotFoundException.byId(id);
 
 		await this.feedbacksRepository.removeOne(id);
 	}

@@ -137,11 +137,11 @@ describe('FeedbacksModule', () => {
 
 			return request(app.getHttpServer())
 				.get(`/feedbacks/feedback/${id}`)
-				.expect(400)
+				.expect(404)
 				.then((res) => {
 					expect(res.body).toMatchObject({
 						status: 'ERROR',
-						code: 400,
+						code: 404,
 						content: `No feedback was found with ID "${id}".`,
 						endpoint: `GET /feedbacks/feedback/${id}`,
 					});
@@ -191,11 +191,11 @@ describe('FeedbacksModule', () => {
 
 			return request(app.getHttpServer())
 				.delete(`/feedbacks/feedback/${id}`)
-				.expect(400)
+				.expect(404)
 				.then((res) => {
 					expect(res.body).toMatchObject({
 						status: 'ERROR',
-						code: 400,
+						code: 404,
 						content: `No feedback was found with ID "${id}".`,
 						endpoint: `DELETE /feedbacks/feedback/${id}`,
 					});

@@ -1,11 +1,12 @@
 import { faker } from '@faker-js/faker';
-import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { UpdateFeedbackService } from '../update-feedback.service';
 
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
+
+import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
 
 describe('UpdateFeedbackService', () => {
 	let updateFeedbackService: UpdateFeedbackService;
@@ -49,9 +50,7 @@ describe('UpdateFeedbackService', () => {
 				productId: 'random_uuid()',
 				userId: 'random_uuid()',
 			}),
-		).rejects.toThrow(
-			new BadRequestException(`No feedback was found with ID "random_uuid()".`),
-		);
+		).rejects.toThrow(FeedbackNotFoundException.byId('random_uuid()'));
 	});
 
 	it('should update a feedback', async () => {
