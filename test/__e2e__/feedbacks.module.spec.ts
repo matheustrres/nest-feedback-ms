@@ -33,12 +33,18 @@ describe('FeedbacksModule', () => {
 		}).compile();
 
 		app = moduleRef.createNestApplication();
+
 		app.enableShutdownHooks();
 		app.useGlobalFilters(new GlobalExceptionFilter());
 		app.useGlobalFilters(new ZodExceptionFilter());
+
 		await app.init();
 
 		conn = moduleRef.get<DatabaseService>(DatabaseService).getConnection();
+	});
+
+	beforeEach(async () => {
+		await conn.dropCollection('feedbacks');
 	});
 
 	it('should be defined', () => {
@@ -231,7 +237,7 @@ describe('FeedbacksModule', () => {
 				});
 		});
 
-		it.only('should return an error if required arguments are not provided', async () => {
+		it('should return an error if required arguments are not provided', async () => {
 			const id = faker.string.uuid();
 
 			return request(app.getHttpServer())
