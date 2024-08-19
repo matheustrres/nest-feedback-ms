@@ -137,6 +137,27 @@ describe('FeedbacksModule', () => {
 					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
+
+		it('should return an error if an invalid productId is provided', async () => {
+			return request(app.getHttpServer())
+				.get('/feedbacks?productId="123"')
+				.expect(400)
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: [
+							{
+								code: 'invalid_string',
+								path: 'productId',
+								message: 'Invalid uuid',
+							},
+						],
+						endpoint: 'GET /feedbacks',
+					});
+					expect(res.body['timestamp']).toBeDefined();
+				});
+		});
 	});
 
 	describe('X GET /feedbacks/feedback/:id', () => {
