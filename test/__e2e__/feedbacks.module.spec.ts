@@ -6,6 +6,7 @@ import request from 'supertest';
 
 import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
+import { type Feedback } from '@/feedbacks/feedback.entity';
 import { FeedbacksModule } from '@/feedbacks/feedbacks.module';
 
 import { GlobalExceptionFilter } from '@/shared/lib/exceptions/filters/global-exception-filter';
@@ -13,15 +14,17 @@ import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exceptio
 import { DatabaseModule } from '@/shared/modules/database/database.module';
 import { DatabaseService } from '@/shared/modules/database/database.service';
 
-const makeDto = (): CreateFeedbackDto => ({
-	userId: faker.string.uuid(),
-	productId: faker.string.uuid(),
-	comment: faker.lorem.lines(1),
-	rating: faker.number.int({
-		min: 0,
-		max: 5,
-	}),
-});
+function makeCreateFeedbackDto(productId?: string): CreateFeedbackDto {
+	return {
+		userId: faker.string.uuid(),
+		productId: productId ?? faker.string.uuid(),
+		comment: faker.lorem.lines(1),
+		rating: faker.number.int({
+			min: 0,
+			max: 5,
+		}),
+	};
+}
 
 describe('FeedbacksModule', () => {
 	let app: INestApplication;
@@ -56,7 +59,7 @@ describe('FeedbacksModule', () => {
 		it('should return an error if user has already sent feedback for given product', async () => {
 			const server = app.getHttpServer();
 
-			const dto = makeDto();
+			const dto = makeCreateFeedbackDto();
 
 			await request(server).post('/feedbacks').send(dto);
 
@@ -79,7 +82,7 @@ describe('FeedbacksModule', () => {
 			return request(app.getHttpServer())
 				.post('/feedbacks')
 				.send({
-					...makeDto(),
+					...makeCreateFeedbackDto(),
 					rating: 10,
 				})
 				.expect(400)
@@ -101,7 +104,7 @@ describe('FeedbacksModule', () => {
 		});
 
 		it('should create a feedback', async () => {
-			const dto = makeDto();
+			const dto = makeCreateFeedbackDto();
 
 			return request(app.getHttpServer())
 				.post('/feedbacks')
@@ -158,6 +161,38 @@ describe('FeedbacksModule', () => {
 					expect(res.body['timestamp']).toBeDefined();
 				});
 		});
+
+		it('should return all feedbacks for a product', async () => {
+			const server = app.getHttpServer();
+
+			const productId = faker.string.uuid();
+
+			await Promise.all([
+				request(server)
+					.post('/feedbacks')
+					.send(makeCreateFeedbackDto(productId)),
+				request(server)
+					.post('/feedbacks')
+					.send(makeCreateFeedbackDto(productId)),
+				request(server)
+					.post('/feedbacks')
+					.send(makeCreateFeedbackDto(productId)),
+				request(server).post('/feedbacks').send(makeCreateFeedbackDto()),
+				request(server).post('/feedbacks').send(makeCreateFeedbackDto()),
+			]);
+
+			return request(server)
+				.get(`/feedbacks?productId=${productId}`)
+				.expect(200)
+				.then((res) => {
+					const feedbacks = res.body as Feedback[];
+
+					expect(feedbacks.length).toBe(3);
+					for (const feedback of feedbacks) {
+						expect(feedback.productId).toEqual(productId);
+					}
+				});
+		});
 	});
 
 	describe('X GET /feedbacks/feedback/:id', () => {
@@ -195,7 +230,7 @@ describe('FeedbacksModule', () => {
 
 		it('should return a feedback object', async () => {
 			const server = app.getHttpServer();
-			const dto = makeDto();
+			const dto = makeCreateFeedbackDto();
 
 			const { body } = await request(server)
 				.post('/feedbacks')
@@ -252,7 +287,7 @@ describe('FeedbacksModule', () => {
 
 			const { body } = await request(server)
 				.post('/feedbacks')
-				.send(makeDto())
+				.send(makeCreateFeedbackDto())
 				.expect(201);
 
 			return request(server)
@@ -306,7 +341,7 @@ describe('FeedbacksModule', () => {
 
 		it('should return an updated & formatted feedback', async () => {
 			const server = app.getHttpServer();
-			const dto = makeDto();
+			const dto = makeCreateFeedbackDto();
 
 			const { body } = await request(server)
 				.post('/feedbacks')
