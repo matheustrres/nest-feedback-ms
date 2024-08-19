@@ -12,7 +12,7 @@ describe('DeleteFeedbackController', () => {
 	const id = 'random_uuid()';
 
 	beforeEach(async () => {
-		const moduleRef = await Test.createTestingModule({
+		const testingModule = await Test.createTestingModule({
 			controllers: [DeleteFeedbackController],
 			providers: [
 				{
@@ -24,19 +24,15 @@ describe('DeleteFeedbackController', () => {
 			],
 		}).compile();
 
-		controller = moduleRef.get<DeleteFeedbackController>(
+		controller = testingModule.get<DeleteFeedbackController>(
 			DeleteFeedbackController,
 		);
-		service = moduleRef.get<DeleteFeedbackService>(DeleteFeedbackService);
-	});
-
-	afterAll(() => {
-		jest.clearAllMocks();
+		service = testingModule.get<DeleteFeedbackService>(DeleteFeedbackService);
 	});
 
 	it('should be defined', () => {
-		expect(service).toBeDefined();
 		expect(controller).toBeDefined();
+		expect(service).toBeDefined();
 	});
 
 	it('should throw if no feedback is found with given id', async () => {
@@ -44,27 +40,28 @@ describe('DeleteFeedbackController', () => {
 			.spyOn(service, 'exec')
 			.mockRejectedValueOnce(FeedbackNotFoundException.byId(id));
 
-		const promise = controller.handle(id);
-
-		await expect(promise).rejects.toThrow(
+		await expect(controller.handle(id)).rejects.toThrow(
 			FeedbackNotFoundException.byId(id).message,
 		);
 	});
 
 	it('should call service with correct feedback id', async () => {
-		const execSpy = jest.spyOn(service, 'exec').mockResolvedValueOnce();
+		jest.spyOn(service, 'exec').mockResolvedValueOnce();
 
 		await controller.handle(id);
 
-		expect(execSpy).toHaveBeenCalledWith(id);
+		expect(service.exec).toHaveBeenCalledWith(id);
 	});
 
 	it('should delete a feedback', async () => {
+		jest.spyOn(service, 'exec');
+
 		const id = 'random_uuid()';
-		const execSpy = jest.spyOn(service, 'exec');
 
 		await controller.handle(id);
 
-		expect(execSpy).toHaveBeenCalledWith(id);
+		expect(service.exec).toHaveBeenCalledWith(id);
 	});
+
+	afterAll(() => jest.clearAllMocks());
 });

@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
+import { makeFeedback } from '../__data__/make-feedback';
+
 import { ListProductFeedbacksController } from '@/feedbacks/controllers/list-product-feedbacks.controller';
-import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
-import { Feedback } from '@/feedbacks/feedback.entity';
 import { ListProductFeedbacksService } from '@/feedbacks/services/list-product-feedbacks.service';
 import { FeedbackViewModel } from '@/feedbacks/view-models/feedback';
 
@@ -11,22 +11,8 @@ describe('ListProductFeedbacksController', () => {
 	let controller: ListProductFeedbacksController;
 	let service: ListProductFeedbacksService;
 
-	function makeFeedback(props?: Partial<CreateFeedbackDto>): Feedback {
-		return new Feedback({
-			userId: props?.userId || faker.string.uuid(),
-			productId: props?.userId || faker.string.uuid(),
-			comment: props?.comment || faker.lorem.lines(1),
-			rating:
-				props?.rating ||
-				faker.number.int({
-					min: 0,
-					max: 5,
-				}),
-		});
-	}
-
 	beforeEach(async () => {
-		const moduleRef = await Test.createTestingModule({
+		const testingModule = await Test.createTestingModule({
 			controllers: [ListProductFeedbacksController],
 			providers: [
 				{
@@ -38,25 +24,20 @@ describe('ListProductFeedbacksController', () => {
 			],
 		}).compile();
 
-		controller = moduleRef.get<ListProductFeedbacksController>(
+		controller = testingModule.get<ListProductFeedbacksController>(
 			ListProductFeedbacksController,
 		);
-		service = moduleRef.get<ListProductFeedbacksService>(
+		service = testingModule.get<ListProductFeedbacksService>(
 			ListProductFeedbacksService,
 		);
 	});
 
 	it('should be defined', () => {
-		expect(service).toBeDefined();
 		expect(controller).toBeDefined();
-	});
-
-	afterAll(() => {
-		jest.clearAllMocks();
+		expect(service).toBeDefined();
 	});
 
 	it('should return formatted feedbacks for a product', async () => {
-		7;
 		const productId = faker.string.uuid();
 
 		const mockedFeedbacks = [
@@ -69,16 +50,18 @@ describe('ListProductFeedbacksController', () => {
 			feedbacks: mockedFeedbacks,
 		});
 
-		const feedbacks = await controller.handle({
+		const feedbackList = await controller.handle({
 			productId,
 		});
 
 		expect(service.exec).toHaveBeenCalledWith({
 			productId,
 		});
-		expect(feedbacks).toHaveLength(mockedFeedbacks.length);
-		for (const feedback of feedbacks) {
+		expect(feedbackList).toHaveLength(mockedFeedbacks.length);
+		for (const feedback of feedbackList) {
 			expect(feedback).toMatchObject(FeedbackViewModel.toJson(feedback));
 		}
 	});
+
+	afterAll(() => jest.clearAllMocks());
 });

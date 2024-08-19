@@ -1,30 +1,17 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
-import { Feedback, type FeedbackProps } from '@/feedbacks/feedback.entity';
+import { makeFeedback } from '../__data__/make-feedback';
+
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
 import { ListProductFeedbacksService } from '@/feedbacks/services/list-product-feedbacks.service';
 
-function makeFeedback(props?: Partial<FeedbackProps>): Feedback {
-	return new Feedback({
-		userId: props?.userId || faker.string.uuid(),
-		productId: props?.productId || faker.string.uuid(),
-		comment: props?.comment || faker.lorem.lines(1),
-		rating:
-			props?.rating ||
-			faker.number.int({
-				min: 0,
-				max: 5,
-			}),
-	});
-}
-
 describe('ListProductFeedbacks', () => {
-	let listProductFeedbacksService: ListProductFeedbacksService;
-	let feedbacksRepository: FeedbacksRepository;
+	let service: ListProductFeedbacksService;
+	let repository: FeedbacksRepository;
 
 	beforeEach(async () => {
-		const moduleRef = await Test.createTestingModule({
+		const testingModule = await Test.createTestingModule({
 			providers: [
 				ListProductFeedbacksService,
 				{
@@ -36,26 +23,21 @@ describe('ListProductFeedbacks', () => {
 			],
 		}).compile();
 
-		listProductFeedbacksService = moduleRef.get<ListProductFeedbacksService>(
+		service = testingModule.get<ListProductFeedbacksService>(
 			ListProductFeedbacksService,
 		);
-		feedbacksRepository =
-			moduleRef.get<FeedbacksRepository>(FeedbacksRepository);
-	});
-
-	afterAll(() => {
-		jest.clearAllMocks();
+		repository = testingModule.get<FeedbacksRepository>(FeedbacksRepository);
 	});
 
 	it('should be defined', () => {
-		expect(listProductFeedbacksService).toBeDefined();
-		expect(feedbacksRepository).toBeDefined();
+		expect(service).toBeDefined();
+		expect(repository).toBeDefined();
 	});
 
 	it('should list all feedbacks for a product', async () => {
 		const productId = faker.string.uuid();
 
-		jest.spyOn(feedbacksRepository, 'find').mockResolvedValueOnce([
+		jest.spyOn(repository, 'find').mockResolvedValueOnce([
 			makeFeedback({
 				productId,
 			}),
@@ -71,7 +53,7 @@ describe('ListProductFeedbacks', () => {
 			makeFeedback(),
 		]);
 
-		const { feedbacks } = await listProductFeedbacksService.exec({
+		const { feedbacks } = await service.exec({
 			productId,
 		});
 
@@ -80,4 +62,6 @@ describe('ListProductFeedbacks', () => {
 			expect(feedbacks[i]!.productId).toEqual(productId);
 		}
 	});
+
+	afterAll(() => jest.clearAllMocks());
 });

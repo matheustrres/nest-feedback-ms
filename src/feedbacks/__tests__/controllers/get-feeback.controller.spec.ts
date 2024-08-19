@@ -1,9 +1,8 @@
-import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
+import { makeFeedback } from '../__data__/make-feedback';
+
 import { GetFeedbackByIdController } from '@/feedbacks/controllers/get-feedback.controller';
-import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
-import { Feedback } from '@/feedbacks/feedback.entity';
 import { GetFeedbackByIdService } from '@/feedbacks/services/get-feedback.service';
 import { FeedbackViewModel } from '@/feedbacks/view-models/feedback';
 
@@ -15,20 +14,10 @@ describe('GetFeedbackByIdController', () => {
 
 	const id = 'random_uuid()';
 
-	const createFeedbackDto: CreateFeedbackDto = {
-		userId: faker.string.uuid(),
-		productId: faker.string.uuid(),
-		comment: faker.lorem.lines(1),
-		rating: faker.number.int({
-			min: 0,
-			max: 5,
-		}),
-	};
-
-	const mockedFeedback = new Feedback(createFeedbackDto);
+	const feedback = makeFeedback();
 
 	beforeEach(async () => {
-		const moduleRef = await Test.createTestingModule({
+		const testingModule = await Test.createTestingModule({
 			controllers: [GetFeedbackByIdController],
 			providers: [
 				{
@@ -40,14 +29,10 @@ describe('GetFeedbackByIdController', () => {
 			],
 		}).compile();
 
-		controller = moduleRef.get<GetFeedbackByIdController>(
+		controller = testingModule.get<GetFeedbackByIdController>(
 			GetFeedbackByIdController,
 		);
-		service = moduleRef.get<GetFeedbackByIdService>(GetFeedbackByIdService);
-	});
-
-	afterAll(() => {
-		jest.clearAllMocks();
+		service = testingModule.get<GetFeedbackByIdService>(GetFeedbackByIdService);
 	});
 
 	it('should be defined', () => {
@@ -68,22 +53,20 @@ describe('GetFeedbackByIdController', () => {
 	});
 
 	it('should call service with correct feedback id', async () => {
-		const execSpy = jest.spyOn(service, 'exec').mockResolvedValueOnce({
-			feedback: mockedFeedback,
-		});
+		jest.spyOn(service, 'exec').mockResolvedValueOnce({ feedback });
 
 		await controller.handle(id);
 
-		expect(execSpy).toHaveBeenCalledWith(id);
+		expect(service.exec).toHaveBeenCalledWith(id);
 	});
 
 	it('should return formatted feedback', async () => {
-		jest
-			.spyOn(service, 'exec')
-			.mockResolvedValueOnce({ feedback: mockedFeedback });
+		jest.spyOn(service, 'exec').mockResolvedValueOnce({ feedback });
 
-		const result = await controller.handle(id);
+		const foundFeedback = await controller.handle(id);
 
-		expect(result).toEqual(FeedbackViewModel.toJson(mockedFeedback));
+		expect(foundFeedback).toEqual(FeedbackViewModel.toJson(feedback));
 	});
+
+	afterAll(() => jest.clearAllMocks());
 });

@@ -1,9 +1,11 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
+import { makeFeedback } from '../__data__/make-feedback';
+
 import { UpdateFeedbackController } from '@/feedbacks/controllers/update-feeback.controller';
 import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
-import { Feedback } from '@/feedbacks/feedback.entity';
+import { type Feedback } from '@/feedbacks/feedback.entity';
 import { UpdateFeedbackService } from '@/feedbacks/services/update-feedback.service';
 import { FeedbackViewModel } from '@/feedbacks/view-models/feedback';
 
@@ -25,17 +27,13 @@ describe('UpdateFeedbackController', () => {
 		}),
 	};
 
-	const mockedFeedback = new Feedback({
-		...updateFeedbackDto,
-		comment: faker.lorem.lines(1),
-		rating: faker.number.int({
-			min: 0,
-			max: 5,
-		}),
+	const feedback = makeFeedback({
+		productId: updateFeedbackDto.productId,
+		userId: updateFeedbackDto.userId,
 	});
 
 	beforeEach(async () => {
-		const moduleRef = await Test.createTestingModule({
+		const testingModule = await Test.createTestingModule({
 			controllers: [UpdateFeedbackController],
 			providers: [
 				{
@@ -47,19 +45,15 @@ describe('UpdateFeedbackController', () => {
 			],
 		}).compile();
 
-		controller = moduleRef.get<UpdateFeedbackController>(
+		controller = testingModule.get<UpdateFeedbackController>(
 			UpdateFeedbackController,
 		);
-		service = moduleRef.get<UpdateFeedbackService>(UpdateFeedbackService);
-	});
-
-	afterAll(() => {
-		jest.clearAllMocks();
+		service = testingModule.get<UpdateFeedbackService>(UpdateFeedbackService);
 	});
 
 	it('should be defined', () => {
-		expect(service).toBeDefined();
 		expect(controller).toBeDefined();
+		expect(service).toBeDefined();
 	});
 
 	it('should throw if no feedback is found with given id', async () => {
@@ -67,36 +61,34 @@ describe('UpdateFeedbackController', () => {
 			.spyOn(service, 'exec')
 			.mockRejectedValueOnce(FeedbackNotFoundException.byId(id));
 
-		const promise = controller.handle(id, updateFeedbackDto);
-
-		await expect(promise).rejects.toThrow(
+		await expect(controller.handle(id, updateFeedbackDto)).rejects.toThrow(
 			FeedbackNotFoundException.byId(id).message,
 		);
 	});
 
 	it('should call service with correct arguments', async () => {
-		const execSpy = jest.spyOn(service, 'exec').mockResolvedValueOnce({
-			feedback: mockedFeedback,
+		jest.spyOn(service, 'exec').mockResolvedValueOnce({
+			feedback,
 		});
 
 		await controller.handle(id, updateFeedbackDto);
 
-		expect(execSpy).toHaveBeenCalledWith(id, updateFeedbackDto);
+		expect(service.exec).toHaveBeenCalledWith(id, updateFeedbackDto);
 	});
 
 	it('should return formatted feedback', async () => {
-		const updatedFeedback: Feedback = {
-			...mockedFeedback,
+		const feedback2: Feedback = makeFeedback({
+			...feedback,
 			rating: 2,
 			comment: 'Bad product',
-		};
+		});
 
-		jest
-			.spyOn(service, 'exec')
-			.mockResolvedValueOnce({ feedback: updatedFeedback });
+		jest.spyOn(service, 'exec').mockResolvedValueOnce({ feedback: feedback2 });
 
-		const result = await controller.handle(id, updateFeedbackDto);
+		const updatedFeedback = await controller.handle(id, updateFeedbackDto);
 
-		expect(result).toEqual(FeedbackViewModel.toJson(updatedFeedback));
+		expect(updatedFeedback).toEqual(FeedbackViewModel.toJson(feedback2));
 	});
+
+	afterAll(() => jest.clearAllMocks());
 });

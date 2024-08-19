@@ -2,16 +2,17 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
+import { makeFeedback } from '../__data__/make-feedback';
+
 import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
-import { Feedback } from '@/feedbacks/feedback.entity';
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
 import { CreateFeedbackService } from '@/feedbacks/services/create-feedback.service';
 
 describe('CreateFeedbackService', () => {
-	let createFeedbackService: CreateFeedbackService;
-	let feedbacksRepository: FeedbacksRepository;
+	let service: CreateFeedbackService;
+	let repository: FeedbacksRepository;
 
-	const createFeedbackDto: CreateFeedbackDto = {
+	const dto: CreateFeedbackDto = {
 		userId: faker.string.uuid(),
 		productId: faker.string.uuid(),
 		comment: faker.lorem.text(),
@@ -22,7 +23,7 @@ describe('CreateFeedbackService', () => {
 	};
 
 	beforeEach(async () => {
-		const moduleRef = await Test.createTestingModule({
+		const testingModule = await Test.createTestingModule({
 			providers: [
 				CreateFeedbackService,
 				{
@@ -35,53 +36,40 @@ describe('CreateFeedbackService', () => {
 			],
 		}).compile();
 
-		createFeedbackService = moduleRef.get<CreateFeedbackService>(
-			CreateFeedbackService,
-		);
-		feedbacksRepository =
-			moduleRef.get<FeedbacksRepository>(FeedbacksRepository);
-	});
-
-	afterAll(() => {
-		jest.clearAllMocks();
+		service = testingModule.get<CreateFeedbackService>(CreateFeedbackService);
+		repository = testingModule.get<FeedbacksRepository>(FeedbacksRepository);
 	});
 
 	it('should be defined', () => {
-		expect(createFeedbackService).toBeDefined();
-		expect(feedbacksRepository).toBeDefined();
+		expect(service).toBeDefined();
+		expect(repository).toBeDefined();
 	});
 
-	it('should throw if user has already sent a feedback for a product', async () => {
-		jest
-			.spyOn(feedbacksRepository, 'findOne')
-			.mockResolvedValueOnce(new Feedback(createFeedbackDto));
+	it('should throw if user has already sent feedback for a product', async () => {
+		jest.spyOn(repository, 'findOne').mockResolvedValueOnce(makeFeedback(dto));
 
-		await expect(createFeedbackService.exec(createFeedbackDto)).rejects.toThrow(
+		await expect(service.exec(dto)).rejects.toThrow(
 			new BadRequestException(
-				`User "${createFeedbackDto.userId}" has already sent feedback for product "${createFeedbackDto.productId}".`,
+				`User "${dto.userId}" has already sent feedback for product "${dto.productId}".`,
 			),
 		);
 	});
 
 	it('should create a feedback for a product successfully', async () => {
-		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce(null);
+		jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
 
-		const result = await createFeedbackService.exec(createFeedbackDto);
+		const { feedback } = await service.exec(dto);
 
-		expect(feedbacksRepository.findOne).toHaveBeenCalledWith({
-			productId: createFeedbackDto.productId,
-			userId: createFeedbackDto.userId,
+		expect(repository.findOne).toHaveBeenCalledWith({
+			productId: dto.productId,
+			userId: dto.userId,
 		});
-		expect(feedbacksRepository.createOne).toHaveBeenCalledTimes(1);
-		expect(result.feedback).toHaveProperty('userId', createFeedbackDto.userId);
-		expect(result.feedback).toHaveProperty(
-			'productId',
-			createFeedbackDto.productId,
-		);
-		expect(result.feedback).toHaveProperty(
-			'comment',
-			createFeedbackDto.comment,
-		);
-		expect(result.feedback).toHaveProperty('rating', createFeedbackDto.rating);
+		expect(repository.createOne).toHaveBeenCalledTimes(1);
+		expect(feedback).toHaveProperty('userId', dto.userId);
+		expect(feedback).toHaveProperty('productId', dto.productId);
+		expect(feedback).toHaveProperty('comment', dto.comment);
+		expect(feedback).toHaveProperty('rating', dto.rating);
 	});
+
+	afterAll(() => jest.clearAllMocks());
 });

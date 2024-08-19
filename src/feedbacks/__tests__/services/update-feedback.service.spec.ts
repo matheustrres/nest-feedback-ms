@@ -1,18 +1,18 @@
-import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
-import { Feedback } from '@/feedbacks/feedback.entity';
+import { makeFeedback } from '../__data__/make-feedback';
+
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
 import { UpdateFeedbackService } from '@/feedbacks/services/update-feedback.service';
 
 import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
 
 describe('UpdateFeedbackService', () => {
-	let updateFeedbackService: UpdateFeedbackService;
-	let feedbacksRepository: FeedbacksRepository;
+	let service: UpdateFeedbackService;
+	let repository: FeedbacksRepository;
 
 	beforeEach(async () => {
-		const moduleRef = await Test.createTestingModule({
+		const testingModule = await Test.createTestingModule({
 			providers: [
 				UpdateFeedbackService,
 				{
@@ -25,27 +25,20 @@ describe('UpdateFeedbackService', () => {
 			],
 		}).compile();
 
-		updateFeedbackService = moduleRef.get<UpdateFeedbackService>(
-			UpdateFeedbackService,
-		);
-		feedbacksRepository =
-			moduleRef.get<FeedbacksRepository>(FeedbacksRepository);
-	});
-
-	afterAll(() => {
-		jest.clearAllMocks();
+		service = testingModule.get<UpdateFeedbackService>(UpdateFeedbackService);
+		repository = testingModule.get<FeedbacksRepository>(FeedbacksRepository);
 	});
 
 	it('should be defined', () => {
-		expect(updateFeedbackService).toBeDefined();
-		expect(feedbacksRepository).toBeDefined();
+		expect(service).toBeDefined();
+		expect(repository).toBeDefined();
 	});
 
 	it('should throw if no feedback is found with given id', async () => {
-		jest.spyOn(feedbacksRepository, 'findOne').mockResolvedValueOnce(null);
+		jest.spyOn(repository, 'findOne').mockResolvedValueOnce(null);
 
 		await expect(
-			updateFeedbackService.exec('random_uuid()', {
+			service.exec('random_uuid()', {
 				productId: 'random_uuid()',
 				userId: 'random_uuid()',
 			}),
@@ -53,30 +46,23 @@ describe('UpdateFeedbackService', () => {
 	});
 
 	it('should update a feedback', async () => {
-		const mockedFeedback = new Feedback({
-			userId: faker.string.uuid(),
-			productId: faker.string.uuid(),
-			comment: 'Just a simple comment',
-			rating: 1,
-		});
+		const feedback = makeFeedback();
 
-		jest
-			.spyOn(feedbacksRepository, 'findOne')
-			.mockResolvedValueOnce(mockedFeedback);
+		jest.spyOn(repository, 'findOne').mockResolvedValueOnce(feedback);
 
-		const { feedback } = await updateFeedbackService.exec(mockedFeedback.id, {
-			userId: mockedFeedback.userId,
-			productId: mockedFeedback.productId,
+		const { feedback: updatedFeedback } = await service.exec(feedback.id, {
+			userId: feedback.userId,
+			productId: feedback.productId,
 			comment: 'Underrated comment',
 			rating: 5,
 		});
 
-		expect(feedbacksRepository.updateOne).toHaveBeenNthCalledWith(
+		expect(repository.updateOne).toHaveBeenNthCalledWith(
 			1,
 			{
-				id: mockedFeedback.id,
-				userId: mockedFeedback.userId,
-				productId: mockedFeedback.productId,
+				id: feedback.id,
+				userId: feedback.userId,
+				productId: feedback.productId,
 			},
 			{
 				comment: 'Underrated comment',
@@ -84,7 +70,9 @@ describe('UpdateFeedbackService', () => {
 				updatedAt: feedback.updatedAt,
 			},
 		);
-		expect(feedback.comment).toEqual('Underrated comment');
-		expect(feedback.rating).toEqual(5);
+		expect(updatedFeedback.comment).toEqual('Underrated comment');
+		expect(updatedFeedback.rating).toEqual(5);
 	});
+
+	afterAll(() => jest.clearAllMocks());
 });
