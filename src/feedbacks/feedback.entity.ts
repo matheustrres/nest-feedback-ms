@@ -42,6 +42,7 @@ export class Feedback {
 	@Prop({
 		name: 'product_id',
 		required: true,
+		index: true,
 	})
 	productId!: string;
 
