@@ -116,6 +116,29 @@ describe('FeedbacksModule', () => {
 		});
 	});
 
+	describe('X GET /feedbacks?productId=', () => {
+		it('should return an error if no productId is provided', async () => {
+			return request(app.getHttpServer())
+				.get('/feedbacks?=')
+				.expect(400)
+				.then((res) => {
+					expect(res.body).toMatchObject({
+						status: 'ERROR',
+						code: 400,
+						content: [
+							{
+								code: 'invalid_type',
+								path: 'productId',
+								message: 'Required',
+							},
+						],
+						endpoint: 'GET /feedbacks',
+					});
+					expect(res.body['timestamp']).toBeDefined();
+				});
+		});
+	});
+
 	describe('X GET /feedbacks/feedback/:id', () => {
 		it('should return an error if an invalid UUID is provided', async () => {
 			return request(app.getHttpServer())
