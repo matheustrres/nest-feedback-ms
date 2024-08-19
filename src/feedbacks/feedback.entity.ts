@@ -5,7 +5,7 @@ import { type Types, type HydratedDocument } from 'mongoose';
 
 export type FeedbackDoc = HydratedDocument<Feedback>;
 
-type FeedbackProps = {
+export type FeedbackProps = {
 	userId: string;
 	productId: string;
 	comment: string;
