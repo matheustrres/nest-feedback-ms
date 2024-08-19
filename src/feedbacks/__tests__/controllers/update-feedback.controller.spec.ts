@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
-import { UpdateFeedbackController } from '../update-feeback.controller';
-
+import { UpdateFeedbackController } from '@/feedbacks/controllers/update-feeback.controller';
 import { type UpdateFeedbackDto } from '@/feedbacks/dtos/update-feedback.dto';
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { UpdateFeedbackService } from '@/feedbacks/services/update-feedback.service';

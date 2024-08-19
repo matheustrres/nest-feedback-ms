@@ -2,11 +2,10 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
-import { CreateFeedbackService } from '../create-feedback.service';
-
 import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
+import { CreateFeedbackService } from '@/feedbacks/services/create-feedback.service';
 
 describe('CreateFeedbackService', () => {
 	let createFeedbackService: CreateFeedbackService;

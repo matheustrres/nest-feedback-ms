@@ -2,8 +2,7 @@ import { faker } from '@faker-js/faker';
 import { BadRequestException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
-import { CreateFeedbackController } from '../create-feedback.controller';
-
+import { CreateFeedbackController } from '@/feedbacks/controllers/create-feedback.controller';
 import { type CreateFeedbackDto } from '@/feedbacks/dtos/create-feedback.dto';
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { CreateFeedbackService } from '@/feedbacks/services/create-feedback.service';

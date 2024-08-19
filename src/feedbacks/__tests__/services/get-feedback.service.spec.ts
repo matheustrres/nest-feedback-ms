@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
-import { GetFeedbackByIdService } from '../get-feedback.service';
-
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
+import { GetFeedbackByIdService } from '@/feedbacks/services/get-feedback.service';
 
 import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
 

@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
-import { UpdateFeedbackService } from '../update-feedback.service';
-
 import { Feedback } from '@/feedbacks/feedback.entity';
 import { FeedbacksRepository } from '@/feedbacks/feedbacks.repository';
+import { UpdateFeedbackService } from '@/feedbacks/services/update-feedback.service';
 
 import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
 

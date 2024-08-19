@@ -1,7 +1,6 @@
 import { Test } from '@nestjs/testing';
 
-import { DeleteFeedbackController } from '../delete-feedback.controller';
-
+import { DeleteFeedbackController } from '@/feedbacks/controllers/delete-feedback.controller';
 import { DeleteFeedbackService } from '@/feedbacks/services/delete-feedback.service';
 
 import { FeedbackNotFoundException } from '@/shared/lib/exceptions/feedback-not-found';
