@@ -33,7 +33,7 @@ export class FeedbacksRepository {
 		filter: FilterQuery<Feedback>,
 		queryOptions?: QueryOptions,
 	): Promise<Feedback[]> {
-		return this.model.find(filter, queryOptions);
+		return this.model.find(filter, null, queryOptions);
 	}
 
 	async findOne(
