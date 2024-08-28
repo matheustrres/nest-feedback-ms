@@ -12,6 +12,11 @@ import { EnvService } from '../env/env.service';
 			imports: [EnvModule],
 			useFactory: (envService: EnvService) => ({
 				uri: envService.getKey('MONGODB_URI'),
+				auth: {
+					username: envService.getKey('MONGODB_USER'),
+					password: envService.getKey('MONGODB_PASSWORD'),
+				},
+				dbName: envService.getKey('MONGODB_DATABASE'),
 			}),
 			inject: [EnvService],
 		}),

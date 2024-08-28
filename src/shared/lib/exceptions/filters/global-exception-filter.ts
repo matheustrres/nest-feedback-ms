@@ -7,7 +7,8 @@ import {
 
 import { BaseExceptionFilter } from './base-exception-filter';
 
-import { type SentryService } from '@/shared/modules/sentry/sentry.service';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { SentryService } from '@/shared/modules/sentry/sentry.service';
 
 @Catch()
 export class GlobalExceptionFilter extends BaseExceptionFilter<unknown> {

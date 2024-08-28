@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 
 import { AppController } from './app.controller';
@@ -8,6 +9,8 @@ import { FeedbacksModule } from '@/feedbacks/feedbacks.module';
 
 import { HealthModule } from '@/health/health.module';
 
+import { GlobalExceptionFilter } from '@/shared/lib/exceptions/filters/global-exception-filter';
+import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exception-filter';
 import { DatabaseModule } from '@/shared/modules/database/database.module';
 import { EnvModule } from '@/shared/modules/env/env.module';
 import { EnvService } from '@/shared/modules/env/env.service';
@@ -38,6 +41,16 @@ import { type SentryModuleOptions } from '@/shared/modules/sentry/sentry.types';
 		FeedbacksModule,
 	],
 	controllers: [AppController],
-	providers: [AppService],
+	providers: [
+		AppService,
+		{
+			provide: APP_FILTER,
+			useClass: GlobalExceptionFilter,
+		},
+		{
+			provide: APP_FILTER,
+			useClass: ZodExceptionFilter,
+		},
+	],
 })
 export class AppModule {}
