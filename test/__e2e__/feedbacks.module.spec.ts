@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { type INestApplication } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { type Connection } from 'mongoose';
 import request from 'supertest';
@@ -13,6 +14,7 @@ import { GlobalExceptionFilter } from '@/shared/lib/exceptions/filters/global-ex
 import { ZodExceptionFilter } from '@/shared/lib/exceptions/filters/zod-exception-filter';
 import { DatabaseModule } from '@/shared/modules/database/database.module';
 import { DatabaseService } from '@/shared/modules/database/database.service';
+import { SentryModule } from '@/shared/modules/sentry/sentry.module';
 
 function makeCreateFeedbackDto(productId?: string): CreateFeedbackDto {
 	return {
@@ -32,15 +34,21 @@ describe('FeedbacksModule', () => {
 
 	beforeAll(async () => {
 		const moduleRef = await Test.createTestingModule({
-			imports: [FeedbacksModule, DatabaseModule],
+			imports: [DatabaseModule, FeedbacksModule, SentryModule],
+			providers: [
+				{
+					provide: APP_FILTER,
+					useClass: GlobalExceptionFilter,
+				},
+				{
+					provide: APP_FILTER,
+					useClass: ZodExceptionFilter,
+				},
+			],
 		}).compile();
 
 		app = moduleRef.createNestApplication();
-
 		app.enableShutdownHooks();
-		app.useGlobalFilters(new GlobalExceptionFilter());
-		app.useGlobalFilters(new ZodExceptionFilter());
-
 		await app.init();
 
 		conn = moduleRef.get<DatabaseService>(DatabaseService).getConnection();
