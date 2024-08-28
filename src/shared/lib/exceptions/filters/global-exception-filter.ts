@@ -7,8 +7,15 @@ import {
 
 import { BaseExceptionFilter } from './base-exception-filter';
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+import { SentryService } from '@/shared/modules/sentry/sentry.service';
+
 @Catch()
 export class GlobalExceptionFilter extends BaseExceptionFilter<unknown> {
+	constructor(private readonly sentryService: SentryService) {
+		super();
+	}
+
 	catch(exception: unknown, host: ArgumentsHost) {
 		const { response, endpoint } = this.getHttpContext(host);
 
@@ -25,6 +32,9 @@ export class GlobalExceptionFilter extends BaseExceptionFilter<unknown> {
 			'Unhandled exception has been caught: ',
 			console.trace(exception),
 		);
+
+		// Only unhandled exceptions will be sent to Sentry
+		this.sentryService.captureException(exception, 'errored');
 
 		return this.sendErrorResponse(response, {
 			code: HttpStatus.INTERNAL_SERVER_ERROR,
