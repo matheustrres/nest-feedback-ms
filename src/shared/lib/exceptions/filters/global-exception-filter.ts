@@ -7,11 +7,14 @@ import {
 
 import { BaseExceptionFilter } from './base-exception-filter';
 
-import { NestSentry } from '@/@libs/sentry';
+import { type SentryService } from '@/shared/modules/sentry/sentry.service';
 
 @Catch()
 export class GlobalExceptionFilter extends BaseExceptionFilter<unknown> {
-	@NestSentry.WithSentry()
+	constructor(private readonly sentryService: SentryService) {
+		super();
+	}
+
 	catch(exception: unknown, host: ArgumentsHost) {
 		const { response, endpoint } = this.getHttpContext(host);
 
@@ -28,6 +31,9 @@ export class GlobalExceptionFilter extends BaseExceptionFilter<unknown> {
 			'Unhandled exception has been caught: ',
 			console.trace(exception),
 		);
+
+		// Only unhandled exceptions will be sent to Sentry
+		this.sentryService.captureException(exception, 'errored');
 
 		return this.sendErrorResponse(response, {
 			code: HttpStatus.INTERNAL_SERVER_ERROR,

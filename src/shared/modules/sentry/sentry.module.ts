@@ -4,6 +4,7 @@ import {
 	SENTRY_MODULE_ASYNC_OPTIONS_TOKEN,
 	SENTRY_TOKEN,
 } from './sentry.config';
+import { SentryService } from './sentry.service';
 import {
 	type SentryModuleAsyncOptions,
 	type SentryModuleOptions,
@@ -11,7 +12,10 @@ import {
 
 import { NestSentry } from '@/@libs/sentry';
 
-@Module({})
+@Module({
+	providers: [SentryService],
+	exports: [SentryService],
+})
 export class SentryModule {
 	static forRoot(sentryModuleOptions: SentryModuleOptions): DynamicModule {
 		NestSentry.init(sentryModuleOptions);
