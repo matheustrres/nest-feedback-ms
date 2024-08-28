@@ -7,8 +7,11 @@ import {
 
 import { BaseExceptionFilter } from './base-exception-filter';
 
+import { NestSentry } from '@/@libs/sentry';
+
 @Catch()
 export class GlobalExceptionFilter extends BaseExceptionFilter<unknown> {
+	@NestSentry.WithSentry()
 	catch(exception: unknown, host: ArgumentsHost) {
 		const { response, endpoint } = this.getHttpContext(host);
 
